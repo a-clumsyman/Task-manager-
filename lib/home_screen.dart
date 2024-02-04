@@ -1,11 +1,12 @@
 // home_screen.dart
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'section_container.dart';
 import 'expandable_task_tile.dart';
 import 'completed_tasks_screen.dart';
 import 'task.dart';
+import 'now_section.dart';
+import 'next_section.dart';
+import 'later_section.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -29,34 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SectionContainer(
-              title: 'Now',
-              tasks: nowTasks,
-              onTaskChecked: onTaskChecked,
-              onAddTask: () {
-                if (nowTasks.length < 5) {
-                  _showAddTaskDialog('Now');
-                } else {
-                  _showLimitExceededDialog('Now');
-                }
-              },
-            ),
-            SectionContainer(
-              title: 'Next',
-              tasks: nextTasks,
-              onTaskChecked: onTaskChecked,
-              onAddTask: () {
-                _showAddTaskDialog('Next');
-              },
-            ),
-            SectionContainer(
-              title: 'Later',
-              tasks: laterTasks,
-              onTaskChecked: onTaskChecked,
-              onAddTask: () {
-                _showAddTaskDialog('Later');
-              },
-            ),
+            NowSection(nowTasks, onTaskChecked, onAddTask),
+            NextSection(nextTasks, onTaskChecked, onAddTask),
+            LaterSection(laterTasks, onTaskChecked, onAddTask),
           ],
         ),
       ),
@@ -81,12 +57,12 @@ class _HomeScreenState extends State<HomeScreen> {
       laterTasks.remove(task);
       completedTasks.add(task);
 
-      // Assign the date of completion directly
+      // Assign the date and time of completion directly
       task.dateCompleted = DateTime.now();
     });
   }
 
-  void _showAddTaskDialog(String section) {
+  void onAddTask(String section) {
     Task newTask = Task(
       title: '',
       description: '',
@@ -101,26 +77,5 @@ class _HomeScreenState extends State<HomeScreen> {
         laterTasks.add(newTask);
       }
     });
-  }
-
-  void _showLimitExceededDialog(String section) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Task Limit Exceeded'),
-          content: Text(
-              'The task limit for the "$section" container has been reached.'),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 }
