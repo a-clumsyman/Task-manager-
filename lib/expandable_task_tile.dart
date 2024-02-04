@@ -1,3 +1,4 @@
+// expandable_task_tile.dart
 import 'package:flutter/material.dart';
 import 'task.dart';
 
@@ -17,14 +18,11 @@ class _ExpandableTaskTileState extends State<ExpandableTaskTile> {
   bool isEditing = false;
 
   @override
-  void initState() {
-    super.initState();
+  Widget build(BuildContext context) {
+    // Initialize the controllers directly in the build method
     titleController.text = widget.task.title;
     descriptionController.text = widget.task.description;
-  }
 
-  @override
-  Widget build(BuildContext context) {
     return ExpansionTile(
       title: Row(
         children: [
@@ -44,42 +42,56 @@ class _ExpandableTaskTileState extends State<ExpandableTaskTile> {
               ? Expanded(
                   child: TextField(
                     controller: titleController,
-                    decoration: InputDecoration(labelText: 'Edit Task Title'),
+                    decoration: InputDecoration(labelText: 'Task Title'),
+                    onChanged: (value) {
+                      widget.task.title = value;
+                    },
                   ),
                 )
-              : Expanded(
-                  child: Text(widget.task.title),
+              : Text(
+                  widget.task.title,
+                  style: TextStyle(
+                    decoration:
+                        widget.task.isDone ? TextDecoration.lineThrough : null,
+                  ),
                 ),
         ],
       ),
       children: [
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              isEditing
-                  ? TextField(
-                      controller: descriptionController,
-                      decoration:
-                          InputDecoration(labelText: 'Edit Task Description'),
-                    )
-                  : Text('Description: ${widget.task.description}'),
-              SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    if (isEditing) {
-                      widget.task.title = titleController.text;
-                      widget.task.description = descriptionController.text;
-                    }
-                    isEditing = !isEditing;
-                  });
-                },
-                child: Text(isEditing ? 'Save Changes' : 'Edit Task'),
-              ),
-            ],
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: isEditing
+              ? TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(labelText: 'Task Description'),
+                  onChanged: (value) {
+                    widget.task.description = value;
+                  },
+                )
+              : Text(
+                  widget.task.description,
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  if (isEditing) {
+                    // Save changes to the task when editing is complete
+                    widget.task.title = titleController.text;
+                    widget.task.description = descriptionController.text;
+                  }
+                  isEditing = !isEditing;
+                });
+              },
+              child: Text(isEditing ? 'Save' : 'Edit'),
+            ),
+          ],
         ),
       ],
     );

@@ -1,5 +1,7 @@
+// completed_tasks_screen.dart
 import 'package:flutter/material.dart';
 import 'task.dart';
+import 'package:intl/intl.dart';
 
 class CompletedTasksScreen extends StatelessWidget {
   final List<Task> completedTasks;
@@ -24,8 +26,27 @@ class CompletedTasksScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: completedTasks
                 .map(
-                  (task) => ListTile(
-                    title: Text(task.title),
+                  (task) => ExpansionTile(
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(task.title),
+                        Text(
+                          'Date Created: ${formatDate(task.dateCreated)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          'Date Completed: ${formatDate(task.dateCompleted)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                     subtitle: Text(task.description),
                   ),
                 )

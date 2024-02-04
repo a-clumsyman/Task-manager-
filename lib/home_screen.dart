@@ -1,3 +1,6 @@
+// home_screen.dart
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'section_container.dart';
 import 'expandable_task_tile.dart';
@@ -31,7 +34,11 @@ class _HomeScreenState extends State<HomeScreen> {
               tasks: nowTasks,
               onTaskChecked: onTaskChecked,
               onAddTask: () {
-                _showAddTaskDialog('Now');
+                if (nowTasks.length < 5) {
+                  _showAddTaskDialog('Now');
+                } else {
+                  _showLimitExceededDialog('Now');
+                }
               },
             ),
             SectionContainer(
@@ -73,59 +80,43 @@ class _HomeScreenState extends State<HomeScreen> {
       nextTasks.remove(task);
       laterTasks.remove(task);
       completedTasks.add(task);
+
+      // Assign the date of completion directly
+      task.dateCompleted = DateTime.now();
     });
   }
 
   void _showAddTaskDialog(String section) {
-    TextEditingController titleController = TextEditingController();
-    TextEditingController descriptionController = TextEditingController();
+    Task newTask = Task(
+      title: '',
+      description: '',
+    );
 
+    setState(() {
+      if (section == 'Now' && nowTasks.length < 5) {
+        nowTasks.add(newTask);
+      } else if (section == 'Next') {
+        nextTasks.add(newTask);
+      } else if (section == 'Later') {
+        laterTasks.add(newTask);
+      }
+    });
+  }
+
+  void _showLimitExceededDialog(String section) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add New Task to $section'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: InputDecoration(labelText: 'Task Title'),
-              ),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Task Description'),
-              ),
-            ],
-          ),
+          title: Text('Task Limit Exceeded'),
+          content: Text(
+              'The task limit for the "$section" container has been reached.'),
           actions: [
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Task newTask = Task(
-                  title: titleController.text,
-                  description: descriptionController.text,
-                );
-
-                setState(() {
-                  if (section == 'Now') {
-                    nowTasks.add(newTask);
-                  } else if (section == 'Next') {
-                    nextTasks.add(newTask);
-                  } else if (section == 'Later') {
-                    laterTasks.add(newTask);
-                  }
-                });
-
-                Navigator.of(context).pop();
-              },
-              child: Text('Add Task'),
+              child: Text('OK'),
             ),
           ],
         );
